@@ -2,9 +2,12 @@
 
 ## 1. System Design
 
+A User shuould be able to add a pet, create and update tasks (complete or incomplete), and see pending tasks.
+
 **a. Initial design**
 
 - Briefly describe your initial UML design.
+
 - What classes did you include, and what responsibilities did you assign to each?
 
 **b. Design changes**
