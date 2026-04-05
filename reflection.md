@@ -7,14 +7,16 @@ A User shuould be able to add a pet, create and update tasks (complete or incomp
 **a. Initial design**
 
 - Briefly describe your initial UML design.
-
 - What classes did you include, and what responsibilities did you assign to each?
+
+My initial UML design has 3 classes, Owner, Task, and Pet. An owner has the ability to add a pet, create and update tasts.
+The Owner class can have a list of Pet objects and a list of Tasks assigned to each pet. The Pet class has all the information for a single Pet. The Task object will hold a petId and assing a specific task to the pet with this ID.
 
 **b. Design changes**
 
 - Did your design change during implementation?
 - If yes, describe at least one change and why you made it.
-
+I added a duplicate checker to the add_pet function in the Owner class because it was possible to contienually add the same pet over and over again. As well as the 4th class, Scheduler.
 ---
 
 ## 2. Scheduling Logic and Tradeoffs
