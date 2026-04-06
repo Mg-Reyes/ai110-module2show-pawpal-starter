@@ -26,12 +26,14 @@ I added a duplicate checker to the add_pet function in the Owner class because i
 - What constraints does your scheduler consider (for example: time, priority, preferences)?
 - How did you decide which constraints mattered most?
 
-
+The scheduler considers due date when it sorts the tasks. I chose the due_date because when a user wants to see their tasks they would want to see them sorted from closes due date to the latests.
 
 **b. Tradeoffs**
 
 - Describe one tradeoff your scheduler makes.
 - Why is that tradeoff reasonable for this scenario?
+
+The Scheduler sorts the tasks by their due date instead of priority or preference. I think this is a good tradeoff because the due date is the most important information when it comes to scheduling tasks.
 
 ---
 
