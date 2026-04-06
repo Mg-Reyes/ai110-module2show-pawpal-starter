@@ -26,6 +26,8 @@ I added a duplicate checker to the add_pet function in the Owner class because i
 - What constraints does your scheduler consider (for example: time, priority, preferences)?
 - How did you decide which constraints mattered most?
 
+
+
 **b. Tradeoffs**
 
 - Describe one tradeoff your scheduler makes.

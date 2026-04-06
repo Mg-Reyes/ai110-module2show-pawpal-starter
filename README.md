@@ -41,3 +41,9 @@ pip install -r requirements.txt
 5. Add tests to verify key behaviors.
 6. Connect your logic to the Streamlit UI in `app.py`.
 7. Refine UML so it matches what you actually built.
+
+
+##  Smarter Scheduling
+- Scheduler sorts the owner's tasks by their due date
+- Has a conflict detector which can detect overlaping tasks and ouputs a warning.
+- You can filter by completed tasks, over due tasks, or tasks for specific pets.

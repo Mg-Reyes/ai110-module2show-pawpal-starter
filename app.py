@@ -1,4 +1,6 @@
 import streamlit as st
+import pawpal_system
+
 
 st.set_page_config(page_title="PawPal+", page_icon="🐾", layout="centered")
 
@@ -42,12 +44,17 @@ st.subheader("Quick Demo Inputs (UI only)")
 owner_name = st.text_input("Owner name", value="Jordan")
 pet_name = st.text_input("Pet name", value="Mochi")
 species = st.selectbox("Species", ["dog", "cat", "other"])
+pet_breed = st.text_input("Breed", value="Unknown")
+pet_age = st.number_input("Age", min_value=0, max_value=50, value=3)
 
 st.markdown("### Tasks")
 st.caption("Add a few tasks. In your final version, these should feed into your scheduler.")
 
 if "tasks" not in st.session_state:
     st.session_state.tasks = []
+
+if "owner" not in st.session_state:
+    st.session_state.owner = pawpal_system.Owner(name=owner_name, email='something@gmail.com', pets=[], tasks=st.session_state.tasks)
 
 col1, col2, col3 = st.columns(3)
 with col1:
@@ -62,6 +69,11 @@ if st.button("Add task"):
         {"title": task_title, "duration_minutes": int(duration), "priority": priority}
     )
 
+if st.button("Add Pet"):
+    petId = str(len(st.session_state.owner.pets) + 1)
+    pet = pawpal_system.Pet(id=petId, name=pet_name, species=species, breed=pet_breed, age=pet_age)
+    st.session_state.owner.add_pet(pet)
+
 if st.session_state.tasks:
     st.write("Current tasks:")
     st.table(st.session_state.tasks)
@@ -74,9 +86,21 @@ st.subheader("Build Schedule")
 st.caption("This button should call your scheduling logic once you implement it.")
 
 if st.button("Generate schedule"):
-    st.warning(
-        "Not implemented yet. Next step: create your scheduling logic (classes/functions) and call it here."
-    )
+    
+    scheduler = pawpal_system.Scheduler(owner=st.session_state.owner)
+
+    st.markdown("### Pending Tasks")
+    for task in scheduler.get_pending_tasks():
+        st.write(f"- [{task.priority.upper()}] {task.title} | Due: {task.due_date}")
+
+    st.markdown("### Overdue Tasks")
+    for task in scheduler.get_overdue_tasks():
+        st.write(f"- [{task.priority.upper()}] {task.title} | Due: {task.due_date}")
+
+    st.markdown("### Upcoming Tasks (next 7 days)")
+    for task in scheduler.get_upcoming_tasks(days_ahead=7):
+        st.write(f"- [{task.priority.upper()}] {task.title} | Due: {task.due_date}")
+
     st.markdown(
         """
 Suggested approach:

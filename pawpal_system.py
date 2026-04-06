@@ -22,14 +22,23 @@ class Task:
     pet_id: Optional[str] = None
     description: str = ""
     due_date: Optional[date] = None
+    start_time: Optional[str] = None  # "HH:MM" format
+    duration_minutes: int = 30  # default to 30 minutes
     is_completed: bool = False
     priority: str = "medium"  # default to medium
+    recurrence: Optional[str] = None  # "daily", "weekly", or None
 
     # Method to set priority with validation
     def set_priority(self, priority: str) -> None:
         if priority not in ["low", "medium", "high"]:
             raise ValueError("Priority must be 'low', 'medium', or 'high'.")
         self.priority = priority
+
+    # Method to set recurrence with validation
+    def set_recurrence(self, recurrence: Optional[str]) -> None:
+        if recurrence not in [None, "daily", "weekly"]:
+            raise ValueError("Recurrence must be 'daily', 'weekly', or None.")
+        self.recurrence = recurrence
 
     # Method to mark task as completed
     def mark_complete(self) -> None:
@@ -151,3 +160,71 @@ class Scheduler:
             if task.due_date and today <= task.due_date <= today + timedelta(days=days_ahead):
                 upcoming_tasks.append(task)
         return upcoming_tasks
+    
+    # Method to sort tasks by due date, with tasks without a due date appearing at the end
+    def sort_by_time(self) -> list[Task]:
+        return sorted(self.owner.tasks, key=lambda task: task.due_date or date.max)
+
+    # Detects scheduling conflicts between tasks that overlap on the same day
+    def detect_conflicts(self) -> list[str]:
+        warnings = []
+        active_tasks = [t for t in self.owner.tasks if not t.is_completed and t.due_date and t.start_time]
+
+        for i, task_a in enumerate(active_tasks):
+            for task_b in active_tasks[i + 1:]:
+                if task_a.due_date != task_b.due_date:
+                    continue
+
+                # Convert "HH:MM" to total minutes for comparison
+                a_start = int(task_a.start_time.split(":")[0]) * 60 + int(task_a.start_time.split(":")[1])
+                b_start = int(task_b.start_time.split(":")[0]) * 60 + int(task_b.start_time.split(":")[1])
+                a_end = a_start + task_a.duration_minutes
+                b_end = b_start + task_b.duration_minutes
+
+                if a_start < b_end and b_start < a_end:
+                    pet_a = self.owner.get_pet_info(task_a.pet_id).name if task_a.pet_id else "unassigned"
+                    pet_b = self.owner.get_pet_info(task_b.pet_id).name if task_b.pet_id else "unassigned"
+                    warnings.append(
+                        f"Warning: '{task_a.title}' ({pet_a}) and '{task_b.title}' ({pet_b}) "
+                        f"overlap on {task_a.due_date} from {task_a.start_time} and {task_b.start_time}."
+                    )
+
+        return warnings
+
+    # Marks a task complete and schedules the next occurrence if it is recurring
+    def complete_task(self, task_id: str) -> Optional[Task]:
+        for task in self.owner.tasks:
+            if task.id == task_id:
+                task.mark_complete()
+
+                if task.recurrence is None or task.due_date is None:
+                    return None
+
+                delta = timedelta(days=1) if task.recurrence == "daily" else timedelta(weeks=1)
+                next_task = Task(
+                    id=f"{task.id}-{task.due_date + delta}",
+                    title=task.title,
+                    pet_id=task.pet_id,
+                    description=task.description,
+                    due_date=task.due_date + delta,
+                    duration_minutes=task.duration_minutes,
+                    priority=task.priority,
+                    recurrence=task.recurrence,
+                )
+                self.owner.tasks.append(next_task)
+                return next_task
+
+        raise ValueError(f"Task with id {task_id} does not exist.")
+
+    # Method to filter tasks by completion status and/or pet name
+    def filter_tasks(self, is_completed: Optional[bool] = None, pet_name: Optional[str] = None) -> list[Task]:
+        tasks = self.owner.tasks
+
+        if is_completed is not None:
+            tasks = [task for task in tasks if task.is_completed == is_completed]
+
+        if pet_name is not None:
+            pet_ids = {pet.id for pet in self.owner.pets if pet.name.lower() == pet_name.lower()}
+            tasks = [task for task in tasks if task.pet_id in pet_ids]
+
+        return tasks
