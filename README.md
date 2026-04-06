@@ -47,3 +47,9 @@ pip install -r requirements.txt
 - Scheduler sorts the owner's tasks by their due date
 - Has a conflict detector which can detect overlaping tasks and ouputs a warning.
 - You can filter by completed tasks, over due tasks, or tasks for specific pets.
+
+## Testing PawPal+
+
+- Command to run test ython3 -m pytest tests/tests_pawpal.py
+- The tests ensure the sorting, filtering and conflic detection of the Scheduler work correctly.
+- Confidence Level: 5 Stars
